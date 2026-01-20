@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HF Coordinate Cleaning - Visual Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            margin: 0; 
+            padding: 30px; 
+            background: #f0f4f8; 
+            font-family: 'Oswald', Arial, sans-serif; 
+            color: #000; 
+        }
+        
+        .page-container { max-width: 1100px; margin: 0 auto; }
+        
+        .header { 
+            background: #004080; 
+            color: white; 
+            padding: 25px; 
+            text-align: center; 
+            border-radius: 10px; 
+            margin-bottom: 25px; 
+        }
+        .header h1 { font-size: 28px; letter-spacing: 2px; }
+        .header p { font-size: 14px; margin-top: 8px; opacity: 0.9; }
+        
+        .tool-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .tool-title {
+            background: #004080;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .workflow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .step-box {
+            text-align: center;
+        }
+        
+        .step-label {
+            background: #004080;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .file-box {
+            background: #fff;
+            border: 3px solid #004080;
+            border-radius: 10px;
+            padding: 20px;
+            width: 220px;
+            margin-bottom: 8px;
+        }
+        
+        .file-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .file-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #004080;
+            margin-bottom: 5px;
+        }
+        
+        .file-desc {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .step-desc {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .arrow {
+            font-size: 35px;
+            color: #004080;
+            font-weight: 700;
+        }
+        
+        .process-box {
+            background: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+            border: 3px solid #e0a800;
+            border-radius: 10px;
+            padding: 20px 25px;
+            text-align: center;
+        }
+        
+        .process-box h3 {
+            color: #000;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+        
+        .process-box p {
+            font-size: 11px;
+            color: #333;
+        }
+        
+        .validate-box {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            width: 220px;
+        }
+        
+        .output-box {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            width: 220px;
+        }
+        
+        .data-preview {
+            background: #1e1e1e;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            color: #9cdcfe;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+        
+        .data-preview .header-row { color: #569cd6; font-weight: bold; }
+        .data-preview .valid { color: #b5cea8; }
+        .data-preview .invalid { color: #f48771; }
+        .data-preview .cleaned { color: #4ec9b0; }
+        
+        .issue-list {
+            margin-top: 12px;
+            text-align: left;
+        }
+        
+        .issue-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            margin-bottom: 6px;
+            padding: 6px 8px;
+            background: #fff;
+            border-radius: 4px;
+            border-left: 3px solid #dc3545;
+        }
+        
+        .issue-item.valid {
+            border-left-color: #28a745;
+        }
+        
+        .issue-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+        
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        
+        .stat-mini {
+            background: #fff;
+            border: 2px solid #28a745;
+            border-radius: 6px;
+            padding: 8px 12px;
+            text-align: center;
+            min-width: 70px;
+        }
+        
+        .stat-mini.danger {
+            border-color: #dc3545;
+        }
+        
+        .stat-mini .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #155724;
+        }
+        
+        .stat-mini.danger .value {
+            color: #721c24;
+        }
+        
+        .stat-mini .label {
+            font-size: 8px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .footer {
+            background: #004080;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 13px;
+        }
+        
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px dashed #004080;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border: 2px solid #004080;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .info-box h4 {
+            color: #004080;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .info-box p {
+            font-size: 12px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .validation-rules {
+            margin-top: 15px;
+        }
+        
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .rule-type {
+            background: #004080;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 55px;
+            text-align: center;
+        }
+        
+        .rule-type.lat { background: #0056b3; }
+        .rule-type.lon { background: #004080; }
+        
+        .rule-details {
+            font-size: 11px;
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .rule-details strong {
+            color: #004080;
+        }
+        
+        .rule-details code {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+        }
+        
+        .issue-type-list {
+            margin-top: 10px;
+        }
+        
+        .issue-type-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+        
+        .issue-type-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .issue-type-icon.error { background: #f8d7da; }
+        .issue-type-icon.success { background: #d4edda; }
+        
+        .coord-visual {
+            display: flex;
+            justify-content: center;
+            margin: 12px 0;
+        }
+        
+        .coord-visual svg {
+            width: 70px;
+            height: 70px;
+        }
+        
+        @media (max-width: 900px) {
+            .workflow {
+                flex-direction: column;
+            }
+            .arrow {
+                transform: rotate(90deg);
+            }
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <div class="header">
+            <h1>HF COORDINATE CLEANING TOOL</h1>
+            <p>Clean and Validate Health Facility Coordinate Columns</p>
+        </div>
+
+        <div class="tool-section">
+            <div class="tool-title">CLEANING WORKFLOW</div>
+            
+            <div class="workflow">
+                <!-- Input -->
+                <div class="step-box">
+                    <div class="step-label">STEP 1: INPUT</div>
+                    <div class="file-box">
+                        <div class="file-icon">
+                            <svg width="50" height="50" viewBox="0 0 50 50">
+                                <rect x="8" y="5" width="34" height="40" rx="2" fill="#fff" stroke="#004080" stroke-width="2"/>
+                                <line x1="14" y1="15" x2="36" y2="15" stroke="#004080" stroke-width="2"/>
+                                <line x1="14" y1="23" x2="36" y2="23" stroke="#004080" stroke-width="2"/>
+                                <line x1="14" y1="31" x2="36" y2="31" stroke="#004080" stroke-width="2"/>
+                                <line x1="22" y1="15" x2="22" y2="39" stroke="#004080" stroke-width="1"/>
+                            </svg>
+                        </div>
+                        <div class="file-name">facilities.xlsx</div>
+                        <div class="file-desc">Health Facility Dataset</div>
+                        
+                        <div class="data-preview">
+                            <span class="header-row">Name | Lat | Lon</span><br>
+                            <span class="valid">CHC Waterloo | 8.34 | -13.07</span><br>
+                            <span class="invalid">PHU Hastings | ABC | -13.12</span><br>
+                            <span class="invalid">MCHP Jui | 8.41 | 999</span><br>
+                            <span class="valid">CHP Grafton | 8.45 | -13.05</span>
+                        </div>
+                    </div>
+                    <div class="step-desc">Raw data with coordinate issues</div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <!-- Validate -->
+                <div class="step-box">
+                    <div class="step-label">STEP 2: VALIDATE</div>
+                    <div class="validate-box">
+                        <div class="file-icon">
+                            <svg width="45" height="45" viewBox="0 0 45 45">
+                                <circle cx="22.5" cy="22.5" r="18" fill="none" stroke="#ffc107" stroke-width="3"/>
+                                <path d="M22.5 12 L22.5 24" stroke="#856404" stroke-width="3" stroke-linecap="round"/>
+                                <circle cx="22.5" cy="30" r="2" fill="#856404"/>
+                            </svg>
+                        </div>
+                        <div class="file-name">Check Values</div>
+                        <div class="file-desc">Identify Invalid Coordinates</div>
+                        
+                        <div class="issue-list">
+                            <div class="issue-item">
+                                <svg class="issue-icon" viewBox="0 0 16 16">
+                                    <circle cx="8" cy="8" r="7" fill="#dc3545"/>
+                                    <line x1="5" y1="5" x2="11" y2="11" stroke="#fff" stroke-width="2"/>
+                                    <line x1="11" y1="5" x2="5" y2="11" stroke="#fff" stroke-width="2"/>
+                                </svg>
+                                <span>Row 3: "ABC" not a number</span>
+                            </div>
+                            <div class="issue-item">
+                                <svg class="issue-icon" viewBox="0 0 16 16">
+                                    <circle cx="8" cy="8" r="7" fill="#dc3545"/>
+                                    <line x1="5" y1="5" x2="11" y2="11" stroke="#fff" stroke-width="2"/>
+                                    <line x1="11" y1="5" x2="5" y2="11" stroke="#fff" stroke-width="2"/>
+                                </svg>
+                                <span>Row 4: 999 out of range</span>
+                            </div>
+                            <div class="issue-item valid">
+                                <svg class="issue-icon" viewBox="0 0 16 16">
+                                    <circle cx="8" cy="8" r="7" fill="#28a745"/>
+                                    <polyline points="4,8 7,11 12,5" fill="none" stroke="#fff" stroke-width="2"/>
+                                </svg>
+                                <span>2 valid coordinate pairs</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-desc">Flag errors for review</div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <!-- Clean -->
+                <div class="step-box">
+                    <div class="step-label">STEP 3: CLEAN</div>
+                    <div class="process-box">
+                        <h3>PROCESSING</h3>
+                        <p>Remove invalid values</p>
+                        <p>Preserve all rows</p>
+                        <p>Keep valid data intact</p>
+                        
+                        <div class="coord-visual">
+                            <svg viewBox="0 0 70 70">
+                                <circle cx="35" cy="35" r="30" fill="none" stroke="#856404" stroke-width="2"/>
+                                <line x1="5" y1="35" x2="65" y2="35" stroke="#856404" stroke-width="1.5"/>
+                                <line x1="35" y1="5" x2="35" y2="65" stroke="#856404" stroke-width="1.5"/>
+                                <ellipse cx="35" cy="35" rx="30" ry="10" fill="none" stroke="#856404" stroke-width="1"/>
+                                <circle cx="25" cy="28" r="4" fill="#28a745"/>
+                                <circle cx="48" cy="40" r="4" fill="#28a745"/>
+                                <circle cx="20" cy="45" r="4" fill="none" stroke="#dc3545" stroke-width="2" stroke-dasharray="2,2"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <!-- Output -->
+                <div class="step-box">
+                    <div class="step-label">STEP 4: OUTPUT</div>
+                    <div class="output-box">
+                        <div class="file-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40">
+                                <circle cx="20" cy="20" r="18" fill="#28a745"/>
+                                <polyline points="12,20 18,26 28,14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="file-name">facilities_cleaned</div>
+                        <div class="file-desc">Valid Coordinates Only</div>
+                        
+                        <div class="data-preview">
+                            <span class="header-row">Name | Lat | Lon</span><br>
+                            <span class="valid">CHC Waterloo | 8.34 | -13.07</span><br>
+                            <span class="cleaned">PHU Hastings | (empty) | -13.12</span><br>
+                            <span class="cleaned">MCHP Jui | 8.41 | (empty)</span><br>
+                            <span class="valid">CHP Grafton | 8.45 | -13.05</span>
+                        </div>
+                        
+                        <div class="result-stats">
+                            <div class="stat-mini">
+                                <div class="value">4</div>
+                                <div class="label">Rows</div>
+                            </div>
+                            <div class="stat-mini danger">
+                                <div class="value">2</div>
+                                <div class="label">Cleaned</div>
+                            </div>
+                            <div class="stat-mini">
+                                <div class="value">2</div>
+                                <div class="label">Valid</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-desc">Ready for GIS mapping</div>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section">
+                <div class="info-box">
+                    <h4>Validation Rules</h4>
+                    <p>The tool checks each coordinate value against geographic boundaries and data type requirements.</p>
+                    
+                    <div class="validation-rules">
+                        <div class="rule-item">
+                            <div class="rule-type lat">LAT</div>
+                            <div class="rule-details">
+                                <strong>Latitude Range</strong><br>
+                                Must be between <code>-90</code> and <code>+90</code><br>
+                                Represents North/South position on Earth
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <div class="rule-type lon">LON</div>
+                            <div class="rule-details">
+                                <strong>Longitude Range</strong><br>
+                                Must be between <code>-180</code> and <code>+180</code><br>
+                                Represents East/West position on Earth
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <div class="rule-type">NUM</div>
+                            <div class="rule-details">
+                                <strong>Numeric Values Only</strong><br>
+                                Text, symbols, or empty cells are flagged as invalid
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <h4>Common Issues Detected</h4>
+                    <p>The tool identifies and flags these common coordinate problems in health facility data:</p>
+                    
+                    <div class="issue-type-list">
+                        <div class="issue-type-item">
+                            <div class="issue-type-icon error">
+                                <svg width="12" height="12" viewBox="0 0 12 12">
+                                    <line x1="2" y1="2" x2="10" y2="10" stroke="#721c24" stroke-width="2"/>
+                                    <line x1="10" y1="2" x2="2" y2="10" stroke="#721c24" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div><strong>Empty values</strong> - Missing coordinate data</div>
+                        </div>
+                        <div class="issue-type-item">
+                            <div class="issue-type-icon error">
+                                <svg width="12" height="12" viewBox="0 0 12 12">
+                                    <line x1="2" y1="2" x2="10" y2="10" stroke="#721c24" stroke-width="2"/>
+                                    <line x1="10" y1="2" x2="2" y2="10" stroke="#721c24" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div><strong>Text values</strong> - "N/A", "TBD", names, etc.</div>
+                        </div>
+                        <div class="issue-type-item">
+                            <div class="issue-type-icon error">
+                                <svg width="12" height="12" viewBox="0 0 12 12">
+                                    <line x1="2" y1="2" x2="10" y2="10" stroke="#721c24" stroke-width="2"/>
+                                    <line x1="10" y1="2" x2="2" y2="10" stroke="#721c24" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div><strong>Out of range</strong> - Values like 999, -999</div>
+                        </div>
+                        <div class="issue-type-item">
+                            <div class="issue-type-icon error">
+                                <svg width="12" height="12" viewBox="0 0 12 12">
+                                    <line x1="2" y1="2" x2="10" y2="10" stroke="#721c24" stroke-width="2"/>
+                                    <line x1="10" y1="2" x2="2" y2="10" stroke="#721c24" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div><strong>Swapped coordinates</strong> - Lat/Lon reversed</div>
+                        </div>
+                        <div class="issue-type-item">
+                            <div class="issue-type-icon success">
+                                <svg width="12" height="12" viewBox="0 0 12 12">
+                                    <polyline points="2,6 5,9 10,3" fill="none" stroke="#155724" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div><strong>Valid pairs</strong> - Both values within range</div>
+                        </div>
+                    </div>
+                    
+                    <p style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 6px; font-size: 11px;">
+                        <strong>Note:</strong> Invalid values are cleared (set to empty) while preserving all rows. This allows you to later fill in correct coordinates without losing other facility data.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <strong>Informatics Consultancy Firm-Sierra Leone (ICF-SL)</strong><br>
+            <span style="font-size: 11px; opacity: 0.8;">Driving Data-Driven Solutions for Health and Development</span>
+        </div>
+    </div>
+</body>
+</html>
